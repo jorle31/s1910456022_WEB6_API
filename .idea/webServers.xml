@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="ad541069-005a-4fb2-99e0-0140a9c304fc" name="coachingServer" url="http://coachingservice.s1910456022.student.kwmhgb.at/">
+        <fileTransfer rootFolder="/usr/home/sstud502/public_html/coachingservice/coachingServer" accessType="SFTP" host="dedi50.your-server.de" port="222" sshConfigId="24b02ad0-d650-4e5d-9da7-c8d447f9a493" sshConfig="sstud502@dedi50.your-server.de:222 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
