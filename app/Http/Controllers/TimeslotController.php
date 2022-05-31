@@ -17,7 +17,7 @@ class TimeslotController extends Controller
             $query->where('user_id', '=', $id);
         })->whereHas('timeslotAgreement', function ($query) {
             $query->where('accepted', '=', false);
-        })->with(['service', 'timeslotAgreement.user'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
+        })->with(['service.images', 'timeslotAgreement.user'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
         return response()->json($timeslots, 200);
     }
 
@@ -29,7 +29,7 @@ class TimeslotController extends Controller
             $query->where('user_id', '=', $id);
         })->whereHas('timeslotAgreement', function ($query) {
             $query->where('accepted', '=', true);
-        })->with(['service', 'timeslotAgreement.user'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
+        })->with(['service.images', 'timeslotAgreement.user'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
         return response()->json($timeslots, 200);
     }
 
@@ -41,7 +41,7 @@ class TimeslotController extends Controller
             $query->where('user_id', '=', $id);
         })->whereHas('timeslotAgreement', function ($query) {
             $query->where('accepted', '=', true);
-        })->with(['service.user', 'timeslotAgreement'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
+        })->with(['service.user', 'service.images', 'timeslotAgreement'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
         return response()->json($timeslots, 200);
     }
 
@@ -53,7 +53,7 @@ class TimeslotController extends Controller
             $query->where('user_id', '=', $id);
         })->whereHas('timeslotAgreement', function ($query) {
             $query->where('accepted', '=', false);
-        })->with(['service.user', 'timeslotAgreement'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
+        })->with(['service.user', 'service.images', 'timeslotAgreement'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
         return response()->json($timeslots, 200);
     }
 
