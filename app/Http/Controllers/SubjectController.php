@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
@@ -24,5 +23,16 @@ class SubjectController extends Controller
             ->with(['services'])
             ->first();
         return $Subject;
+    }
+
+    /**
+     * finds and returns a Subject based on it's id
+     */
+    public function subjectExists(int $id) : JsonResponse
+    {
+        $subject =  Subject::where('id', $id)->first();
+        return $subject != null ?
+            response()->json(true, 200) :
+            response()->json(false, 200);
     }
 }

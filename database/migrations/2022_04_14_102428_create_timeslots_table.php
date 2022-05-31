@@ -19,6 +19,7 @@ class CreateTimeslotsTable extends Migration
             $table->time('from');
             $table->time('until');
             $table->date('date');
+            $table->bigInteger('status')->default(0);
             $table->boolean('is_booked')->default(false);
             $table->foreignId('service_id')->constrained()->onDelete('cascade');
 

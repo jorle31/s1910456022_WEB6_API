@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Comment;
 use App\Models\Timeslot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,10 +10,69 @@ use Illuminate\Support\Facades\DB;
 class TimeslotController extends Controller
 {
     /**
+     * returns a status of 200 and all services if successful
+     */
+    public function getAllPendingTimeslotAgreementsOfTutor(int $id) : JsonResponse {
+        $timeslots = Timeslot::whereHas('service', function ($query) use ($id) {
+            $query->where('user_id', '=', $id);
+        })->whereHas('timeslotAgreement', function ($query) {
+            $query->where('accepted', '=', false);
+        })->with(['service', 'timeslotAgreement.user'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
+        return response()->json($timeslots, 200);
+    }
+
+    /**
+     * returns a status of 200 and all services if successful
+     */
+    public function getAllAcceptedTimeslotAgreementsOfTutor(int $id) : JsonResponse {
+        $timeslots = Timeslot::whereHas('service', function ($query) use ($id) {
+            $query->where('user_id', '=', $id);
+        })->whereHas('timeslotAgreement', function ($query) {
+            $query->where('accepted', '=', true);
+        })->with(['service', 'timeslotAgreement.user'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
+        return response()->json($timeslots, 200);
+    }
+
+    /**
+     * returns a status of 200 and all services if successful
+     */
+    public function getAllAcceptedTimeslotAgreementsOfStudent(int $id) : JsonResponse {
+        $timeslots = Timeslot::whereHas('timeslotAgreement', function ($query) use ($id) {
+            $query->where('user_id', '=', $id);
+        })->whereHas('timeslotAgreement', function ($query) {
+            $query->where('accepted', '=', true);
+        })->with(['service.user', 'timeslotAgreement'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
+        return response()->json($timeslots, 200);
+    }
+
+    /**
+     * returns a status of 200 and all services if successful
+     */
+    public function getAllPendingTimeslotAgreementsOfStudent(int $id) : JsonResponse {
+        $timeslots = Timeslot::whereHas('timeslotAgreement', function ($query) use ($id) {
+            $query->where('user_id', '=', $id);
+        })->whereHas('timeslotAgreement', function ($query) {
+            $query->where('accepted', '=', false);
+        })->with(['service.user', 'timeslotAgreement'])->orderBy('date', 'DESC')->orderBy('from', 'DESC')->get();
+        return response()->json($timeslots, 200);
+    }
+
+    /**
      * finds and returns a User based on their id
      */
     public function getSpecificTimeslotById(string $id) : Timeslot {
         $timeslot = Timeslot::where('id', $id)
+            ->with(['timeslotAgreement'])
+            ->first();
+        return $timeslot;
+    }
+
+    /**
+     * finds and returns a User based on their id
+     */
+    public function getTimeslots(string $id) : Timeslot {
+        $timeslot = Timeslot::where('id', $id)
+            ->with(['timeslotAgreement'])
             ->first();
         return $timeslot;
     }
@@ -49,7 +107,7 @@ class TimeslotController extends Controller
             }
             DB::commit();
             $timeslot1 = Timeslot::where('id', $id)->first();
-            // return a vaild http response
+            // return a valid http response
             return response()->json($timeslot1, 201);
         }
         catch (\Exception $e) {

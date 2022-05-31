@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\TimeslotAgreementController;
 use App\Http\Controllers\TimeslotController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -50,17 +51,36 @@ Route::group(['middleware' => ['api', 'auth.jwt']], function(){
     Route::delete('comments/{id}', [CommentController::class,'delete']);
     //Log the user out
     Route::post('auth/logout', [AuthController::class, 'logout']);
+    //Get the currently logged-in user
+    Route::get('users/current', [AuthController::class, 'me']);
+    //Get a specific timeslot
+    Route::get('subject/exists/{id}', [SubjectController::class, 'subjectExists']);
 });
 
 //Get a specific timeslot
 Route::get('timeslots/{id}', [TimeslotController::class, 'getSpecificTimeslotById']);
-
+//Get a specific timeslot
+Route::get('timeslots/pending/{id}', [TimeslotController::class, 'getAllPendingTimeslotAgreementsOfTutor']);
+//Get a specific timeslot
+Route::get('timeslots/accepted/{id}', [TimeslotController::class, 'getAllAcceptedTimeslotAgreementsOfTutor']);
+//Get a specific timeslot
+Route::get('timeslots/student/accepted/{id}', [TimeslotController::class, 'getAllAcceptedTimeslotAgreementsOfStudent']);
+//Get a specific timeslot
+Route::get('timeslots/student/pending/{id}', [TimeslotController::class, 'getAllPendingTimeslotAgreementsOfStudent']);
 //--------------------------------------------------------------------------------------
 
 //Get all services
 Route::get('services', [ServiceController::class, 'index']);
+//Get all services
+Route::get('services/latest', [ServiceController::class, 'getLatest']);
 //Get a specific service
 Route::get('services/{id}', [ServiceController::class, 'getSpecificServiceById']);
+//Get a specific user's services
+Route::get('services/user/{id}', [ServiceController::class, 'getSpecificUsersServiceById']);
+//Get a service by availability
+Route::get('services/pending/{id}', [ServiceController::class, 'getServicesWithPending']);
+//Get a service by availability
+Route::get('services/accepted/{id}', [ServiceController::class, 'getServicesWithAccepted']);
 
 //--------------------------------------------------------------------------------------
 
@@ -83,6 +103,22 @@ Route::get('comments/services/{id}', [CommentController::class, 'getCommentsOfSe
 //Get all comments of user
 Route::get('comments/{id}', [CommentController::class, 'getSpecificCommentById']);
 
+//--------------------------------------------------------------------------------------
+
+//Get specific timeslotAgreement with id
+Route::get('timeslotagreements/{id}', [TimeslotAgreementController::class, 'getSpecificTimeslotAgreement']);
+//Get specific timeslotAgreement with id
+Route::get('timeslotagreements', [TimeslotAgreementController::class, 'getAllTimeslotAgreements']);
+//Create timeslotAgreement
+Route::post('timeslotagreements', [TimeslotAgreementController::class, 'save']);
+//Update timeslotAgreement
+Route::put('timeslotagreements/{id}', [TimeslotAgreementController::class, 'update']);
+//Delete timeslotAgreement
+Route::delete('timeslotagreements/{id}', [TimeslotAgreementController::class, 'delete']);
+//Get specific timeslotAgreement with id
+Route::get('timeslotagreements/user/{id}', [TimeslotAgreementController::class, 'getAllTimeslotAgreementsOfUser']);
+//Get specific timeslotAgreement with id
+Route::get('timeslotagreements/user/pending/{id}', [TimeslotAgreementController::class, 'getAllTimeslotAgreementsOfUserWithPending']);
 //--------------------------------------------------------------------------------------
 
 /*auth*/

@@ -12,11 +12,20 @@ use Illuminate\Support\Facades\DB;
 
 class ServiceController extends Controller
 {
+
     /**
      * returns a status of 200 and all services if successful
      */
     public function index() : JsonResponse {
-        $services = Service::with(['subject', 'timeslots', 'comments', 'images', 'user'])->get();
+        $services = Service::with(['subject', 'timeslots.timeslotAgreement', 'comments', 'images', 'user'])->latest()->get();
+        return response()->json($services, 200);
+    }
+
+    /**
+     * returns a status of 200 and the 5 latest services if successful
+     */
+    public function getLatest() : JsonResponse {
+        $services = Service::with(['subject', 'timeslots.timeslotAgreement', 'comments', 'images', 'user'])->latest()->take(5)->get();
         return response()->json($services, 200);
     }
 
@@ -25,9 +34,45 @@ class ServiceController extends Controller
      */
     public function getSpecificServiceById(string $id) : Service {
         $service = Service::where('id', $id)
-            ->with(['subject', 'timeslots', 'images', 'comments', 'user'])
+            ->with(['subject', 'timeslots.timeslotAgreement.user', 'images', 'comments', 'user'])
             ->first();
         return $service;
+    }
+
+    /**
+     * finds and returns an array of services based on their user_id
+     */
+    public function getSpecificUsersServiceById(string $id) : JsonResponse {
+        $services = Service::where('user_id', $id)->with(['subject', 'timeslots.timeslotAgreement', 'comments', 'images', 'user'])->latest()->get();
+        return response()->json($services, 200);
+    }
+
+    /**
+     * returns an array of services with a pending timeslot_agreement status
+     */
+    public function getServicesWithPending(string $id) : JsonResponse {
+        $services = Service::where('user_id', $id)->whereHas('timeslots', function ($query) {
+            $query->where('is_booked', '=', true);
+        })->whereHas('timeslots.timeslotAgreement', function($query) {
+            $query->where('accepted','=', false);
+        })->with(['subject', 'timeslots' => function($q){
+            $q->has('timeslotAgreement');
+        }, 'comments', 'images', 'user', 'timeslots.timeslotAgreement.user'])->get();
+        return response()->json($services, 200);
+    }
+
+    /**
+     * returns an array of services with an accepted timeslot_agreement status
+     */
+    public function getServicesWithAccepted(string $id) : JsonResponse {
+        $services = Service::where('user_id', $id)->whereHas('timeslots', function ($query) {
+            $query->where('is_booked', '=', true);
+        })->whereHas('timeslots.timeslotAgreement', function($query) {
+            $query->where('accepted','=', true);
+        })->with(['subject', 'timeslots' => function($q){
+            $q->has('timeslotAgreement');
+        }, 'comments', 'images', 'user', 'timeslots.timeslotAgreement.user'])->get();
+        return response()->json($services, 200);
     }
 
     /**
@@ -49,48 +94,39 @@ class ServiceController extends Controller
      */
     public function save(Request $request) : JsonResponse
     {
-
         $request = $this->parseRequest($request);
 
-        //if (isset($request['is_coach']) && $request['is_coach'] === true) {
+        DB::beginTransaction();
+        try {
+            $service = Service::create($request->all());
 
-            DB::beginTransaction();
-            try {
-                $service = Service::create($request->all());
-
-                // save images
-                if (isset($request['images']) && is_array($request['images'])) {
-                    foreach ($request['images'] as $img) {
-                        $image = Image::firstOrNew([
-                            'url' => $img['url'],
-                            'title' => $img['title']
-                        ]);
-                        $service->images()->save($image);
-                    }
+            if (isset($request['images']) && is_array($request['images'])) {
+                foreach ($request['images'] as $img) {
+                    $image = Image::firstOrNew([
+                        'url' => $img['url'],
+                        'title' => $img['title']
+                    ]);
+                    $service->images()->save($image);
                 }
-                // save Timeslots
-                if(isset($request['timeslots']) && is_array($request['timeslots'])){
-                    foreach ($request['timeslots'] as $timeslot){
-                        $timeslots = Timeslot::firstOrNew([
-                            'from' => $timeslot['from'],
-                            'until' => $timeslot['until'],
-                            'date' => $timeslot['date']
-                        ]);
-                        $service->timeslots()->save($timeslots);
-                    }
-                }
-
-                DB::commit();
-                return response()->json($service, 201);
-
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return response()->json("saving Service failed:" . $e->getMessage(), 420);
             }
-        /*}
-        else{
-            return response()->json("Users with the role of student do not possess the rights do publish a service offer.", 403);
-        }*/
+            if(isset($request['timeslots']) && is_array($request['timeslots'])){
+                foreach ($request['timeslots'] as $timeslot){
+                    $timeslots = Timeslot::firstOrNew([
+                        'from' => $timeslot['from'],
+                        'until' => $timeslot['until'],
+                        'date' => $timeslot['date']
+                    ]);
+                    $service->timeslots()->save($timeslots);
+                }
+            }
+
+            DB::commit();
+            return response()->json($service, 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json("saving Service failed:" . $e->getMessage(), 420);
+        }
     }
 
     private function parseRequest(Request $request) : Request {
@@ -117,7 +153,10 @@ class ServiceController extends Controller
                 $request = $this->parseRequest($request);
                 $service->update($request->all());
                 //delete all old Timeslots
-                $service->timeslots()->delete();
+                $service->images()->delete();
+                //delete all old Timeslots
+                $timeslots = Timeslot::where('service_id', $service['id'])->where('is_booked', false);
+                $timeslots->delete();
                 // save images
                 if (isset($request['images']) && is_array($request['images'])) {
                     foreach ($request['images'] as $img) {

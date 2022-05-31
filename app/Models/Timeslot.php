@@ -11,13 +11,13 @@ class Timeslot extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['from', 'until', 'date', 'is_booked', 'service_id'];
+    protected $fillable = ['from', 'until', 'date', 'status', 'is_booked', 'service_id'];
 
     public function service() : BelongsTo {
         return $this->belongsTo(Service::class);
     }
 
-    public function timeslotAgreements() : HasOne {
+    public function timeslotAgreement() : HasOne {
         return $this->hasOne(TimeslotAgreement::class);
     }
 }

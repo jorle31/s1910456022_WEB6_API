@@ -10,10 +10,10 @@ class TimeslotAgreement extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['timeslot_id', 'user_id'];
+    protected $fillable = ['accepted', 'timeslot_id', 'user_id'];
 
     public function timeslot() : BelongsTo {
-        return $this->belongsTo(Timeslot::class);
+        return $this->belongsTo(Timeslot::class, 'timeslot_id');
     }
 
     public function user() : BelongsTo {

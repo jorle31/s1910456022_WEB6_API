@@ -14,10 +14,10 @@ class CreateTimeslotAgreementsTable extends Migration
     public function up()
     {
         Schema::create('timeslot_agreements', function (Blueprint $table) {
+            $table->id();
+            $table->boolean('accepted');
             $table->foreignId('timeslot_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->primary(['timeslot_id', 'user_id']);
-
             $table->timestamps();
         });
     }
