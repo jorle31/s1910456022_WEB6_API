@@ -10,7 +10,7 @@ class Subject extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description'];
+    protected $fillable = ['title', 'semester', 'description'];
 
     public function services() : HasMany {
         return $this->hasMany(Service::class);

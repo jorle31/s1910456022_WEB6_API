@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Service;
-use App\Models\Timeslot;
 use App\Models\TimeslotAgreement;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,40 +11,16 @@ class TimeslotAgreementController extends Controller
 {
 
     /**
-     * returns a status of 200 and all services if successful
+     * returns a timeslotAgreement if successful
      */
-    public function getAllTimeslotAgreements() : JsonResponse {
-        $timeslotagreements = TimeslotAgreement::with(['user', 'timeslot.service.subject'])->where('timeslot.service.user_id', 1)->get();
-        return response()->json($timeslotagreements, 200);
-    }
-
-    /**
-     * returns a status of 200 and all services if successful
-     */
-    public function getSpecificTimeslotAgreement(string $id) : TimeslotAgreement  {
+    public function getSpecificTimeslotAgreementByTimeslotId(string $id) : TimeslotAgreement  {
         $timeslotagreement = TimeslotAgreement::where('timeslot_id', $id)
             ->first();
         return $timeslotagreement;
     }
 
     /**
-     * returns a status of 200 and all services if successful
-     */
-    public function getAllTimeslotAgreementsOfUser(string $id) : JsonResponse {
-        $timeslotagreements = TimeslotAgreement::where('user_id', $id)->where('accepted', true)->with('timeslot.service.subject')->orderBy('timeslot.date', 'DESC')->orderBy('timeslot.from', 'DESC')->get();
-        return response()->json($timeslotagreements, 200);
-    }
-
-    /**
-     * returns a status of 200 and all services if successful
-     */
-    public function getAllTimeslotAgreementsOfUserWithPending(string $id) : JsonResponse {
-        $timeslotagreements = TimeslotAgreement::where('user_id', $id)->where('accepted', false)->with('timeslot.service.subject')->get();
-        return response()->json($timeslotagreements, 200);
-    }
-
-    /**
-     * returns 200 if User could be created successfully, throws excpetion if not
+     * returns 200 if timeslotAgreement could be created successfully, throws excpetion if not
      */
     public function save(Request $request) : JsonResponse
     {
@@ -62,7 +36,7 @@ class TimeslotAgreementController extends Controller
     }
 
     /**
-     * returns 200 if User updated successfully, throws excpetion if not
+     * returns 200 if timeslotAgreement updated successfully, throws excpetion if not
      */
     public function update(Request $request, string $id) : JsonResponse
     {
@@ -86,7 +60,7 @@ class TimeslotAgreementController extends Controller
     }
 
     /**
-     * returns 200 if Service was deleted successfully, throws excpetion if not
+     * returns 200 if timeslotAgreement was deleted successfully, throws excpetion if not
      */
     public function delete(string $id) : JsonResponse
     {

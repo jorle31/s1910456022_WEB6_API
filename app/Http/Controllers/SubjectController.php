@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SubjectController extends Controller
 {
@@ -26,13 +28,56 @@ class SubjectController extends Controller
     }
 
     /**
-     * finds and returns a Subject based on it's id
+     * returns 200 if subject could be created successfully, throws excpetion if not
      */
-    public function subjectExists(int $id) : JsonResponse
+    public function save(Request $request) : JsonResponse
     {
-        $subject =  Subject::where('id', $id)->first();
-        return $subject != null ?
-            response()->json(true, 200) :
-            response()->json(false, 200);
+        DB::beginTransaction();
+        try {
+            $subject = Subject::create($request->all());
+            DB::commit();
+            return response()->json($subject, 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json("saving Subject failed:" . $e->getMessage(), 420);
+        }
+    }
+
+    /**
+     * returns 200 if User updated successfully, throws excpetion if not
+     */
+    public function update(Request $request, string $id) : JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $subject = Subject::where('id', $id)->first();
+            if ($subject != null) {
+                $subject->update($request->all());
+                $subject->save();
+            }
+            DB::commit();
+            $subject = Subject::where('id', $id)->first();
+            // return a valid http response
+            return response()->json($subject, 201);
+        }
+        catch (\Exception $e) {
+            // rollback all queries
+            DB::rollBack();
+            return response()->json("updating Subject failed: " . $e->getMessage(), 420);
+        }
+    }
+
+    /**
+     * returns 200 if Service was deleted successfully, throws excpetion if not
+     */
+    public function delete(string $id) : JsonResponse
+    {
+        $subject = Subject::where('id', $id)->first();
+        if ($subject != null) {
+            $subject->delete();
+        }
+        else
+            throw new \Exception("Subject couldn't be deleted - it does not exist");
+        return response()->json('Subject (' . $id . ') successfully deleted', 200);
     }
 }

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class TimeslotController extends Controller
 {
     /**
-     * returns a status of 200 and all services if successful
+     * returns a status of 200 and all timeslots of user if successful
      */
     public function getAllPendingTimeslotAgreementsOfTutor(int $id) : JsonResponse {
         $timeslots = Timeslot::whereHas('service', function ($query) use ($id) {
@@ -22,7 +22,7 @@ class TimeslotController extends Controller
     }
 
     /**
-     * returns a status of 200 and all services if successful
+     * returns a status of 200 and all timeslots of user if successful
      */
     public function getAllAcceptedTimeslotAgreementsOfTutor(int $id) : JsonResponse {
         $timeslots = Timeslot::whereHas('service', function ($query) use ($id) {
@@ -68,17 +68,7 @@ class TimeslotController extends Controller
     }
 
     /**
-     * finds and returns a User based on their id
-     */
-    public function getTimeslots(string $id) : Timeslot {
-        $timeslot = Timeslot::where('id', $id)
-            ->with(['timeslotAgreement'])
-            ->first();
-        return $timeslot;
-    }
-
-    /**
-     * returns 200 if User could be created successfully, throws excpetion if not
+     * returns 200 if timeslot could be created successfully, throws excpetion if not
      */
     public function save(Request $request) : JsonResponse
     {
@@ -94,7 +84,7 @@ class TimeslotController extends Controller
     }
 
     /**
-     * returns 200 if User updated successfully, throws excpetion if not
+     * returns 200 if timeslot updated successfully, throws excpetion if not
      */
     public function update(Request $request, string $id) : JsonResponse
     {
@@ -118,7 +108,7 @@ class TimeslotController extends Controller
     }
 
     /**
-     * returns 200 if Service was deleted successfully, throws excpetion if not
+     * returns 200 if timeslot was deleted successfully, throws excpetion if not
      */
     public function delete(string $id) : JsonResponse
     {

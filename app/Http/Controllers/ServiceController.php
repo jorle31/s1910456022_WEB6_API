@@ -48,34 +48,6 @@ class ServiceController extends Controller
     }
 
     /**
-     * returns an array of services with a pending timeslot_agreement status
-     */
-    public function getServicesWithPending(string $id) : JsonResponse {
-        $services = Service::where('user_id', $id)->whereHas('timeslots', function ($query) {
-            $query->where('is_booked', '=', true);
-        })->whereHas('timeslots.timeslotAgreement', function($query) {
-            $query->where('accepted','=', false);
-        })->with(['subject', 'timeslots' => function($q){
-            $q->has('timeslotAgreement');
-        }, 'comments', 'images', 'user', 'timeslots.timeslotAgreement.user'])->get();
-        return response()->json($services, 200);
-    }
-
-    /**
-     * returns an array of services with an accepted timeslot_agreement status
-     */
-    public function getServicesWithAccepted(string $id) : JsonResponse {
-        $services = Service::where('user_id', $id)->whereHas('timeslots', function ($query) {
-            $query->where('is_booked', '=', true);
-        })->whereHas('timeslots.timeslotAgreement', function($query) {
-            $query->where('accepted','=', true);
-        })->with(['subject', 'timeslots' => function($q){
-            $q->has('timeslotAgreement');
-        }, 'comments', 'images', 'user', 'timeslots.timeslotAgreement.user'])->get();
-        return response()->json($services, 200);
-    }
-
-    /**
      * returns 200 if Service was deleted successfully, throws excpetion if not
      */
     public function delete(string $id) : JsonResponse

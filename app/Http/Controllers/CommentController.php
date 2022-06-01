@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class CommentController extends Controller
 {
     /**
-     * finds and returns a User based on their id
+     * finds and returns a comment based on it's id
      */
     public function getSpecificCommentById(string $id) : Comment {
         $comment = Comment::where('id', $id)
@@ -19,7 +19,7 @@ class CommentController extends Controller
     }
 
     /**
-     * returns 200 if User could be created successfully, throws excpetion if not
+     * returns 200 if comment could be created successfully, throws excpetion if not
      */
     public function save(Request $request) : JsonResponse
     {
@@ -35,7 +35,7 @@ class CommentController extends Controller
     }
 
     /**
-     * returns 200 if User updated successfully, throws excpetion if not
+     * returns 200 if comment updated successfully, throws excpetion if not
      */
     public function update(Request $request, string $id) : JsonResponse
     {
@@ -59,7 +59,7 @@ class CommentController extends Controller
     }
 
     /**
-     * returns 200 if Service was deleted successfully, throws excpetion if not
+     * returns 200 if comment was deleted successfully, throws excpetion if not
      */
     public function delete(string $id) : JsonResponse
     {
