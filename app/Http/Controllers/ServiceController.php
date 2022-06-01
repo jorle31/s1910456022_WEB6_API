@@ -40,7 +40,8 @@ class ServiceController extends Controller
      */
     public function getSpecificServiceById(string $id) : Service {
         $service = Service::where('id', $id)
-            ->with(['subject', 'timeslots.timeslotAgreement.user', 'images', 'comments.user', 'user'])
+            ->with(['subject', 'timeslots.timeslotAgreement.user', 'images', 'comments' => function ($query) {
+            $query->with('user')->orderBy('created_at', 'DESC');}, 'user'])
             ->first();
         return $service;
     }
