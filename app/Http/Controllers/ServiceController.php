@@ -17,7 +17,10 @@ class ServiceController extends Controller
      * returns a status of 200 and all services if successful
      */
     public function index() : JsonResponse {
-        $services = Service::with(['subject', 'timeslots.timeslotAgreement', 'comments.user', 'images', 'user'])->latest()->get();
+        $services = Service::with(['subject', 'timeslots.timeslotAgreement', 'comments.user', 'images', 'user'])
+            ->whereHas('timeslots', function ($query) {
+                $query->where('timeslots.is_booked', '=', false);
+            })->latest()->get();
         return response()->json($services, 200);
     }
 
@@ -25,7 +28,10 @@ class ServiceController extends Controller
      * returns a status of 200 and the 5 latest services if successful
      */
     public function getLatest() : JsonResponse {
-        $services = Service::with(['subject', 'timeslots.timeslotAgreement', 'comments.user', 'images', 'user'])->latest()->take(5)->get();
+        $services = Service::with(['subject', 'timeslots.timeslotAgreement', 'comments.user', 'images', 'user'])
+            ->whereHas('timeslots', function ($query) {
+                $query->where('timeslots.is_booked', '=', false);
+            })->latest()->take(5)->get();
         return response()->json($services, 200);
     }
 
